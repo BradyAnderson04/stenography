@@ -12,8 +12,12 @@ import cv2 as cv
 import sys
 import numpy as np
 import random as rn
+import string
 
 class ImageProcessing():
+    punctuation = string.punctuation
+    whitespaceing = string.whitespace
+
     def __init__(self, fname):
         self.fname = fname
 
@@ -100,9 +104,20 @@ class ImageProcessing():
         binary_string = ""
 
         for letter in m:
+            # we can add a 0 here when we are working with letters 
             binary_string += "0" + str(bin(ord(letter)))[2:]
 
         return binary_string
+
+    def clean_message(self, message):
+        '''
+        remove whitespacing and punctuation from all messages
+        '''
+        output = ""
+        for i in message:
+            if(i not in self.punctuation or i not in self.whitespaceing):
+                output += i
+        return output
 
     def encode_image(self, message):
         '''
@@ -116,36 +131,55 @@ class ImageProcessing():
         channel = rn.randint(1, 3)
 
         img = cv.imread(f"{self.fname}.jpg")
-        m = self.convertText2Binary(message)
+        temp = cv.imread(f"{self.fname}.jpg")
+
+        m = self.convertText2Binary(self.clean_message(message))
 
         for i in range(img.shape[0]):
             for j in range(img.shape[1]):
                 pixel = img[i, j]
                 # B G R - encode lsb with 2 bits from binary string
                 if(channel == 1):
-                    channel = str(bin(pixel[0]))[:-2] + m[:2]
+                    pixel_value = str(bin(pixel[0]))[:-2] + m[:2]
+                    pixel[0] = int(pixel_value, 2)
                 elif(channel == 2):
-                    channel = str(bin(pixel[1]))[:-2] + m[:2]
+                    pixel_value = str(bin(pixel[1]))[:-2] + m[:2]
+                    pixel[1] = int(pixel_value, 2)
                 else:
-                    channel = str(bin(pixel[2]))[:-2] + m[:2]
-                print(m[:2])    
+                    pixel_value = bin(pixel[2])[:-2] + m[:2]
+                    pixel[2] = int(pixel_value, 2)
+
                 m = m[2:]
-    
+
+                if(len(m) == 0):
+                    isEncoded = True
+                    break
+            if(isEncoded):
+                break
+
+        # display and save
+        cv.imshow("Unencoded", temp)
+        cv.imshow("Encoded", img)
+        k = cv.waitKey(0)
+
+        if k == ord("s"):
+            cv.imwrite(f"{self.fname}_encoded.jpg", temp)
+            cv.imwrite(f"{self.fname}_unencoded.jpg", img)
+
+
             
-                print(channel)
 
 if __name__ == '__main__':
     image = ImageProcessing("./images/milkyway")
 
     # convert_to_greyscale("./images/milkyway")
-    # image.encode_image("Fuck you")
     # display_blue("./images/milkyway")
     # print(convertText2Binary("Hello world"))
 
     # image.convert_to_greyscale()
-    # image.encode_image("Hello World")
-    a = image.convertText2Binary("HelloWorld")
-    print(a, len(a))
+    secret_message = "All of my followers are so kinda I appreciate all of you and think it's wonderful that you are supporting me and would love to hear all your thoughts!"
+    image.encode_image(secret_message)
+    # a = image.convertText2Binary("HelloWorld")
 
 
 '''
