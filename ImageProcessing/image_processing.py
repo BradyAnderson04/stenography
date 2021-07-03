@@ -170,16 +170,17 @@ class ImageProcessing():
             
 
 if __name__ == '__main__':
-    image = ImageProcessing("./images/milkyway")
+    image = ImageProcessing("./images/michael")
 
     # convert_to_greyscale("./images/milkyway")
     # display_blue("./images/milkyway")
     # print(convertText2Binary("Hello world"))
 
     # image.convert_to_greyscale()
-    secret_message = "All of my followers are so kinda I appreciate all of you and think it's wonderful that you are supporting me and would love to hear all your thoughts!"
-    image.encode_image(secret_message)
+    # secret_message = "All of my followers are so kinda I appreciate all of you and think it's wonderful that you are supporting me and would love to hear all your thoughts!"
+    # image.encode_image(secret_message)
     # a = image.convertText2Binary("HelloWorld")
+    image.convert_to_greyscale()
 
 
 '''
